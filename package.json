@@ -6,6 +6,7 @@
   "license": "MIT",
   "scripts": {
     "test": "jest",
+    "test:watch": "jest --watch",
     "build": "tsc --project tsconfig.json && bob build",
     "release": "yarn build && changeset publish"
   },
