@@ -1,0 +1,11 @@
+{
+  "name": "sveltekit-my-minion",
+  "version": "0.0.1",
+  "author": "jycouet <jycouet@gmail.com>",
+  "license": "MIT",
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ]
+  }
+}
