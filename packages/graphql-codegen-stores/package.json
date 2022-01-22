@@ -1,6 +1,6 @@
 {
   "name": "@sveltekit-my-minion/graphql-codegen-stores",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "GraphQL Code Generator plugin to generate SvelteKit stores in My Minion context",
   "repository": {
     "type": "git",
@@ -10,7 +10,7 @@
   "license": "MIT",
   "scripts": {
     "lint": "eslint **/*.ts",
-    "test": "jest --no-watchman --config ../../../../jest.config.js",
+    "test": "jest --no-watchman --config ../../jest.config.js",
     "prepack": "bob prepack"
   },
   "dependencies": {

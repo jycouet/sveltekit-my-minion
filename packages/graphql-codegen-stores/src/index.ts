@@ -35,34 +35,111 @@ export const plugin: PluginFunction<
     ""
   );
 
+  const prefixImportBaseTypesFrom = config.importBaseTypesFrom ? "Types." : "";
+
   const out = allAst.definitions
     .map((node) => {
       if (node.kind === "OperationDefinition" && node.name?.value) {
+        const documentName = `${pascalCase(node.name?.value)}Document`;
+        const importDocumentName = prefixImportBaseTypesFrom + documentName;
+
         const operationType: string = pascalCase(node.operation);
         const operationTypeSuffix: string = getOperationSuffix(
           config,
           node,
           operationType
         );
-        const operationVariablesTypes: string = convertName(node, {
-          suffix: operationTypeSuffix + "Variables",
-        });
-        const storeTypeName: string = convertName(node, {
-          suffix: operationTypeSuffix + "Store",
-        });
         const operationResultType: string = convertName(node, {
           suffix: operationTypeSuffix + operationResultSuffix,
         });
+        const importOperationResultType =
+          prefixImportBaseTypesFrom + operationResultType;
+        const operationVariablesTypes: string = convertName(node, {
+          suffix: operationTypeSuffix + "Variables",
+        });
+        const importOperationVariablesTypes =
+          prefixImportBaseTypesFrom + operationVariablesTypes;
 
-        return `export type ${storeTypeName} = OperationStore<${operationResultType}, ${operationVariablesTypes}>;`;
+        const storeTypeName: string = convertName(node, {
+          suffix: operationTypeSuffix + "Store",
+        });
+
+        let lines = [];
+
+        // lines.push(`documentName: '${documentName}'`); // GetVersionDocument
+        // lines.push(`operationType: '${operationType}'`); // Query
+        // lines.push(`operationTypeSuffix: '${operationTypeSuffix}'`); // Query
+        // lines.push(`operationResultType: '${operationResultType}'`); //GetVersionQuery
+        // lines.push(`importOperationResultType: '${importOperationResultType}'`); //GetVersionQuery or Types.GetVersionQuery
+        // lines.push(`operationVariablesTypes: '${operationVariablesTypes}'`); //GetVersionQueryVariables
+        // lines.push(`importOperationVariablesTypes: '${importOperationVariablesTypes}'`); //GetVersionQueryVariables or Types.GetVersionQueryVariables
+        // lines.push(`storeTypeName: '${storeTypeName}'`); //GetVersionQueryStore
+
+        lines.push(`/**`);
+        lines.push(
+          ` * Svetle Store with the latest \`${operationResultType}\` Operation`
+        );
+        lines.push(` */`);
+        lines.push(
+          `export const ${storeTypeName} = writable<RequestResult<${importOperationResultType}>>(defaultStoreValue);`
+        );
+        lines.push(``);
+        lines.push(`/**`);
+        lines.push(
+          ` * For SSR, you need to provide 'fetch' from the load function`
+        );
+        lines.push(
+          ` * For the client you can avoid to provide the 'fetch' native function`
+        );
+        lines.push(` * @param params`);
+        lines.push(
+          ` * @returns the latest ${operationResultType} operation and fill the ${storeTypeName}`
+        );
+        lines.push(` */`);
+        lines.push(`// prettier-ignore`);
+        lines.push(
+          `export async function ${operationResultType}(params?: RequestParameters<${importOperationVariablesTypes}>): Promise<RequestResult<${importOperationResultType}>> {`
+        );
+        lines.push(`	${storeTypeName}.update((c) => {`);
+        lines.push(`		return { ...c, status: RequestStatus.LOADING };`);
+        lines.push(`	});`);
+        lines.push(`	let { fetch, variables } = params || {};`);
+        lines.push(
+          `	const res = await myMinion.request<${importOperationResultType}>({`
+        );
+        lines.push(`		document: ${importDocumentName},`);
+        lines.push(`		variables,`);
+        lines.push(`		skFetch: fetch`);
+        lines.push(`	});`);
+        lines.push(`	const result = { status: RequestStatus.DONE, ...res };`);
+        lines.push(`	${storeTypeName}.set(result);`);
+        lines.push(`	return result;`);
+        lines.push(`}`);
+        lines.push(``);
+
+        return lines.join("\n");
       }
 
       return null;
     })
     .filter(Boolean);
 
+  let prepend = [];
+  prepend.push(`import { myMinion } from '$graphql/myMinion';`);
+  prepend.push(
+    `import { defaultStoreValue, RequestStatus, type RequestParameters, type RequestResult } from '$graphql/MyMinionClient';`
+  );
+  if (config.importBaseTypesFrom) {
+    prepend.push(`import * as Types from "${config.importBaseTypesFrom}";`);
+  }
+  prepend.push(`import type { OperationStore } from '@urql/svelte';`);
+  prepend.push(`import { writable } from 'svelte/store';`);
+
+  // To separate prepend & Content
+  prepend.push(" ");
+
   return {
-    prepend: [`import type { OperationStore } from '@urql/svelte';`],
+    prepend,
     content: out.filter(Boolean).join("\n"),
   };
 };
