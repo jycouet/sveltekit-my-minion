@@ -6,7 +6,7 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc --project tsconfig.json && bob build",
-    "release": "changeset publish"
+    "release": "yarn build && changeset publish"
   },
   "workspaces": {
     "packages": [

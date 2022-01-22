@@ -23,8 +23,8 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "paths": {
-      "@sveltekit-my-minion/graphql-codegen-operations-store": [
-        "packages/graphql-codegen-operations-store/src/index.ts"
+      "@sveltekit-my-minion/graphql-codegen-stores": [
+        "packages/graphql-codegen-stores/src/index.ts"
       ]
     }
   },

@@ -1,11 +1,11 @@
 {
-  "name": "@sveltekit-my-minion/graphql-codegen-operations-store",
-  "version": "0.0.0",
+  "name": "@sveltekit-my-minion/graphql-codegen-stores",
+  "version": "0.0.1",
   "description": "GraphQL Code Generator plugin for generating wrapper for Operations Store for SvelteKit in My Minion context",
   "repository": {
     "type": "git",
     "url": "https://github.com/jycouet/sveltekit-my-minion.git",
-    "directory": "packages/graphql-codegen-operations-store"
+    "directory": "packages/graphql-codegen-stores"
   },
   "license": "MIT",
   "scripts": {
