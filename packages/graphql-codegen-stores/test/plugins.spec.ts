@@ -1,9 +1,9 @@
-import { Types } from '@graphql-codegen/plugin-helpers';
-import { parse } from 'graphql';
-import { plugin } from '../src';
+import { Types } from "@graphql-codegen/plugin-helpers";
+import { parse } from "graphql";
+import { plugin } from "../src";
 
-describe('svelte urql operations store types', () => {
-  it('Should ouput correct results based on operations only', async () => {
+describe("svelte urql operations store types", () => {
+  it("Should ouput correct results based on operations only", async () => {
     const result = (await plugin(
       null as any,
       [
@@ -22,10 +22,14 @@ describe('svelte urql operations store types', () => {
       ],
       {}
     )) as Types.ComplexPluginOutput;
-    expect(result.content).toContain('export type MeQueryStore = OperationStore<MeQuery, MeQueryVariables>;');
     expect(result.content).toContain(
-      'export type DoSomethingMutationStore = OperationStore<DoSomethingMutation, DoSomethingMutationVariables>;'
+      "export type MeQueryStore = OperationStore<MeQuery, MeQueryVariables>;"
     );
-    expect(result.prepend).toContain(`import type { OperationStore } from '@urql/svelte';`);
+    expect(result.content).toContain(
+      "export type DoSomethingMutationStore = OperationStore<DoSomethingMutation, DoSomethingMutationVariables>;"
+    );
+    expect(result.prepend).toContain(
+      `import type { OperationStore } from '@urql/svelte';`
+    );
   });
 });

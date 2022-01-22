@@ -8,4 +8,4 @@ _A coding assistant helping you building a Full Stack SvelteKit Application._
 
 ## How to
 
-All details here: [SvelteKit - My Minion](https://github.com/jycouet/sveltekit-my-minio)
+All details here: [SvelteKit - My Minion](https://github.com/jycouet/sveltekit-my-minion)
