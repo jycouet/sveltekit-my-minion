@@ -111,7 +111,9 @@ export const plugin: PluginFunction<
         lines.push(`		variables,`);
         lines.push(`		skFetch: fetch`);
         lines.push(`	});`);
-        lines.push(`	const result = { status: RequestStatus.DONE, ...res };`);
+        lines.push(
+          `	const result = { status: RequestStatus.DONE, ...res, variables };`
+        );
         lines.push(`	${storeTypeName}.set(result);`);
         lines.push(`	return result;`);
         lines.push(`}`);
@@ -132,7 +134,6 @@ export const plugin: PluginFunction<
   if (config.importBaseTypesFrom) {
     prepend.push(`import * as Types from "${config.importBaseTypesFrom}";`);
   }
-  prepend.push(`import type { OperationStore } from '@urql/svelte';`);
   prepend.push(`import { writable } from 'svelte/store';`);
 
   // To separate prepend & Content
