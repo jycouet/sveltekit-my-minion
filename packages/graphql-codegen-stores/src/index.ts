@@ -81,7 +81,7 @@ export const plugin: PluginFunction<
         );
         lines.push(` */`);
         lines.push(
-          `export const ${storeTypeName} = writable<RequestResult<${importOperationResultType}>>(defaultStoreValue);`
+          `export const ${storeTypeName} = writable<RequestResult<${importOperationResultType}, ${importOperationVariablesTypes}>>(defaultStoreValue);`
         );
         lines.push(``);
         lines.push(`/**`);
@@ -97,19 +97,37 @@ export const plugin: PluginFunction<
         );
         lines.push(` */`);
         lines.push(`// prettier-ignore`);
+        lines.push(`export async function ${operationResultType}(`);
         lines.push(
-          `export async function ${operationResultType}(params?: RequestParameters<${importOperationVariablesTypes}>): Promise<RequestResult<${importOperationResultType}>> {`
+          `  params?: RequestParameters<${importOperationVariablesTypes}>`
         );
+        lines.push(
+          `): Promise<RequestResult<${importOperationResultType}, ${importOperationVariablesTypes}>> {`
+        );
+        lines.push(``);
+        lines.push(`  let storedVariables = null;`);
         lines.push(`	${storeTypeName}.update((c) => {`);
+        lines.push(`		storedVariables = c.variables;`);
         lines.push(`		return { ...c, status: RequestStatus.LOADING };`);
         lines.push(`	});`);
-        lines.push(`	let { fetch, variables } = params || {};`);
+        lines.push(`	let { fetch, variables, settings } = params || {};`);
+        lines.push(`  let { cacheMs } = settings || {};`);
+        if (operationType === "Mutation") {
+          lines.push(`  cacheMs = 0 // It's a Mutation!`);
+        }
+        lines.push(``);
+        lines.push(`  if (variables === undefined) {`);
+        lines.push(`    variables = storedVariables;`);
+        lines.push(`  }`);
+
         lines.push(
-          `	const res = await myMinion.request<${importOperationResultType}>({`
+          `	const res = await myMinion.request<${importOperationResultType}, ${importOperationVariablesTypes}>({`
         );
         lines.push(`		document: ${importDocumentName},`);
         lines.push(`		variables,`);
-        lines.push(`		skFetch: fetch`);
+        lines.push(`		skFetch: fetch,`);
+        lines.push(`		cacheKey: "${operationResultType}",`);
+        lines.push(`		cacheMs`);
         lines.push(`	});`);
         lines.push(
           `	const result = { status: RequestStatus.DONE, ...res, variables };`
